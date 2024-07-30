@@ -4,8 +4,8 @@ This is a simple User Management API built with Go and PostgreSQL. It provides b
 
 ## Features
 
-- User signup with unique membership ID generation
-- User signin
+- User sign-up with unique membership ID generation
+- User sign-in
 - Retrieve all users
 - Password hashing for security
 
