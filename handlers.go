@@ -1,0 +1,100 @@
+package main
+
+import (
+	"encoding/json"
+	"log"
+	"net/http"
+)
+
+func signupHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Received signup request")
+	if r.Method != http.MethodPost {
+		log.Println("Method not allowed:", r.Method)
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var user User
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		log.Println("Error decoding request body:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	log.Printf("Received signup request for user: %s\n", user.Username)
+
+	if user.Username == "" || user.Password == "" {
+		log.Println("Invalid input: username or password is empty")
+		http.Error(w, "Username and password are required", http.StatusBadRequest)
+		return
+	}
+
+	hashedPassword, err := hashPassword(user.Password)
+	if err != nil {
+		log.Println("Error hashing password:", err)
+		http.Error(w, "Error hashing password", http.StatusInternalServerError)
+		return
+	}
+
+	membershipID := generateMembershipID()
+	log.Printf("Generated membership ID: %s\n", membershipID)
+
+	err = createUser(membershipID, user.Username, hashedPassword)
+	if err != nil {
+		log.Printf("Error creating user: %v\n", err)
+		http.Error(w, "Error creating user", http.StatusInternalServerError)
+		return
+	}
+
+	log.Println("User created successfully")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message":       "User created successfully",
+		"membership_id": membershipID,
+	})
+}
+
+func signinHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var credentials SignInCredentials
+	err := json.NewDecoder(r.Body).Decode(&credentials)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user, err := getUser(credentials.Username)
+	if err != nil {
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+
+	if !checkPasswordHash(credentials.Password, user.Password) {
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Sign in successful"})
+}
+
+func getUsersHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	users, err := getAllUsers()
+	if err != nil {
+		http.Error(w, "Error retrieving users", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(users)
+}
