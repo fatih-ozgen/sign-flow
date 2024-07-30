@@ -56,6 +56,12 @@ The server will start on `http://localhost:8080`.
 - GET `/users`: Retrieve all users
   - Response: `[{"membership_id": "ABCD1234EFGH5678", "username": "example"}]`
 
+- GET `/auth/google/login`: Initiate Google OAuth sign-up process
+  - Redirects to Google's OAuth consent screen
+
+- GET `/auth/google/callback`: Handle Google OAuth callback
+  - Response: `{"message": "User created successfully via Google OAuth", "membership_id": "ABCD1234EFGH5678", "email": "user@example.com"}`
+
 ## Project Structure
 
 - `main.go`: Entry point of the application

@@ -28,6 +28,8 @@ func main() {
 	http.HandleFunc("/signup", signupHandler)
 	http.HandleFunc("/signin", signinHandler)
 	http.HandleFunc("/users", getUsersHandler)
+	http.HandleFunc("/auth/google/login", handleGoogleLogin)
+	http.HandleFunc("/auth/google/callback", handleGoogleCallback)
 
 	// Add a simple health check route
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
