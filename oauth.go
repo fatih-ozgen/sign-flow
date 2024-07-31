@@ -10,6 +10,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -22,11 +23,15 @@ var (
 
 func init() {
 	googleOauthConfig = &oauth2.Config{
-		RedirectURL:  "https://ac88-46-2-221-175.ngrok-free.app/auth/google/callback",
-		ClientID:     "476930073014-18kmcf0bv2ltthokm1tt4gapg64jrkbr.apps.googleusercontent.com",
-		ClientSecret: "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",
+		RedirectURL:  os.Getenv("GOOGLE_OAUTH_REDIRECT_URL"),
+		ClientID:     os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
+		ClientSecret: os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
 		Endpoint:     google.Endpoint,
+	}
+
+	if googleOauthConfig.ClientID == "" {
+		log.Fatal("GOOGLE_OAUTH_CLIENT_ID environment variable is not set")
 	}
 
 	oauthStateString = generateStateString()

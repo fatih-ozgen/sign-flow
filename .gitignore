@@ -30,6 +30,8 @@ user-management-api
 
 # Environment variables
 .env
+.env.local
+.env.*.local
 
 # Log files
 *.log

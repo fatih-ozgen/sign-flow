@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/lib/pq"
 )
@@ -12,7 +13,10 @@ var db *sql.DB
 
 func initDB() error {
 	var err error
-	connStr := "user=fatih password=admin123. dbname=postgres sslmode=disable"
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"))
 	db, err = sql.Open("postgres", connStr)
 	if err != nil {
 		return fmt.Errorf("error opening database connection: %v", err)

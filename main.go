@@ -9,14 +9,36 @@ import (
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	log.Println("Starting application...")
 
+	// Load .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Printf("Error loading .env file: %v", err)
+	} else {
+		log.Println(".env file loaded successfully")
+	}
+
+	// Log environment variables
+	log.Printf("GOOGLE_OAUTH_CLIENT_ID: %s", os.Getenv("GOOGLE_OAUTH_CLIENT_ID"))
+	log.Printf("GOOGLE_OAUTH_CLIENT_SECRET: %s", maskString(os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET")))
+	log.Printf("GOOGLE_OAUTH_REDIRECT_URL: %s", os.Getenv("GOOGLE_OAUTH_REDIRECT_URL"))
+
+	// Check if required environment variables are set
+	if os.Getenv("GOOGLE_OAUTH_CLIENT_ID") == "" || os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET") == "" {
+		log.Fatal("GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET must be set in .env file")
+	} else {
+		log.Println("Required environment variables are set")
+	}
+
 	// Initialize database connection
 	log.Println("Initializing database connection...")
-	err := initDB()
+	err = initDB()
 	if err != nil {
 		log.Fatalf("Error initializing database: %v", err)
 	}
@@ -79,11 +101,11 @@ func main() {
 	<-quit
 
 	log.Println("Interrupt received, server is shutting down...")
-	
+
 	// Create a deadline to wait for.
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	
+
 	if err := server.Shutdown(ctx); err != nil {
 		log.Fatalf("Server forced to shutdown: %v", err)
 	}
