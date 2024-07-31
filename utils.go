@@ -7,6 +7,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var (
+	randSource = rand.NewSource(time.Now().UnixNano())
+	randGen    = rand.New(randSource)
+)
+
 func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
@@ -20,12 +25,11 @@ func checkPasswordHash(password, hash string) bool {
 func generateMembershipID() string {
 	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	const length = 16
-	var seededRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	for {
 		b := make([]byte, length)
 		for i := range b {
-			b[i] = charset[seededRand.Intn(len(charset))]
+			b[i] = charset[randGen.Intn(len(charset))]
 		}
 		membershipID := string(b)
 

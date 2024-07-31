@@ -31,7 +31,7 @@ func initDB() error {
 			id SERIAL PRIMARY KEY,
 			membership_id CHAR(16) UNIQUE,
 			username VARCHAR(50) UNIQUE NOT NULL,
-			password VARCHAR(100) NOT NULL,
+			password VARCHAR(100) NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)
 	`)
@@ -86,19 +86,35 @@ func initDB() error {
 
 func createUser(membershipID, username, password string) error {
 	log.Printf("Attempting to create user: %s with membership ID: %s\n", username, membershipID)
-	result, err := db.Exec("INSERT INTO users (membership_id, username, password) VALUES ($1, $2, $3)", membershipID, username, password)
+	var result sql.Result
+	var err error
+
+	if password == "" {
+		log.Println("Creating user without password (OAuth)")
+		result, err = db.Exec("INSERT INTO users (membership_id, username, password) VALUES ($1, $2, NULL)", membershipID, username)
+	} else {
+		log.Println("Creating user with password")
+		result, err = db.Exec("INSERT INTO users (membership_id, username, password) VALUES ($1, $2, $3)", membershipID, username, password)
+	}
+
 	if err != nil {
 		log.Printf("Error creating user: %v\n", err)
-		return err
+		return fmt.Errorf("error creating user: %w", err)
 	}
-	rowsAffected, _ := result.RowsAffected()
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("Error getting rows affected: %v\n", err)
+		return fmt.Errorf("error getting rows affected: %w", err)
+	}
+
 	log.Printf("User created successfully. Rows affected: %d\n", rowsAffected)
 	return nil
 }
 
-func getUser(username string) (User, error) {
+func getUser(usernameOrEmail string) (User, error) {
 	var user User
-	err := db.QueryRow("SELECT id, membership_id, username, password FROM users WHERE username = $1", username).Scan(&user.ID, &user.MembershipID, &user.Username, &user.Password)
+	err := db.QueryRow("SELECT id, membership_id, username, password FROM users WHERE username = $1 OR username = $1", usernameOrEmail).Scan(&user.ID, &user.MembershipID, &user.Username, &user.Password)
 	if err != nil {
 		return User{}, err
 	}
