@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            background-color: #f8f9fa;
+            padding: 10px 20px;
+            text-align: right;
+        }
+        .logout-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .welcome-message {
+            text-align: center;
+            font-size: 20px;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <form action="/logout" method="POST">
+            <button type="submit" class="logout-btn">Log Out</button>
+        </form>
+    </div>
+    <div class="welcome-message">
+        <h1>Welcome, {{.Username}}!</h1>
+    </div>
+</body>
+</html>

@@ -129,12 +129,15 @@ func handleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	log.Printf("User created successfully via Google OAuth: %s", userInfo.Email)
 
 	log.Printf("User created successfully via Google OAuth: %s", userInfo.Email)
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message":       "User created successfully via Google OAuth",
-		"membership_id": membershipID,
-		"email":         userInfo.Email,
-	})
+	
+	// Create a session for the user
+	session, _ := store.Get(r, "session-name")
+	session.Values["user_id"] = membershipID
+	session.Values["username"] = userInfo.Email
+	session.Save(r, w)
+
+	// Redirect to the welcome page
+	http.Redirect(w, r, "/welcome", http.StatusSeeOther)
 }
 
 func getUserInfo(state string, code string) ([]byte, error) {
