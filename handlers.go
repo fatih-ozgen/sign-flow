@@ -135,7 +135,7 @@ func getUsersHandler(w http.ResponseWriter, r *http.Request) {
 
 func welcomeHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "session-name")
-	username, ok := session.Values["username"].(string)
+	username, _ := session.Values["username"].(string)
 
 	tmpl, err := template.ParseFiles("templates/welcome.html")
 	if err != nil {
