@@ -47,7 +47,7 @@ func main() {
 
 	// Set up routes
 	log.Println("Setting up routes...")
-	http.HandleFunc("/", serveWebPage)
+	http.HandleFunc("/", serveIndexPage)
 	http.HandleFunc("/signup", signupHandler)
 	http.HandleFunc("/signin", signinHandler)
 	http.HandleFunc("/users", getUsersHandler)
