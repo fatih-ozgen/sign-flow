@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -22,6 +23,12 @@ var (
 )
 
 func init() {
+	// Load the .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  os.Getenv("GOOGLE_OAUTH_REDIRECT_URL"),
 		ClientID:     os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
