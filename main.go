@@ -53,6 +53,8 @@ func main() {
 	http.HandleFunc("/users", getUsersHandler)
 	http.HandleFunc("/auth/google/login", handleGoogleLogin)
 	http.HandleFunc("/auth/google/callback", handleGoogleCallback)
+	http.HandleFunc("/welcome", welcomeHandler)
+	http.HandleFunc("/logout", logoutHandler)
 
 	// Add a simple health check route
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {

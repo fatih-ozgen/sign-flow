@@ -4,6 +4,12 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"html/template"
+	"github.com/gorilla/sessions"
+)
+
+var (
+	store = sessions.NewCookieStore([]byte("secret-key"))
 )
 
 func signupHandler(w http.ResponseWriter, r *http.Request) {
@@ -97,4 +103,37 @@ func getUsersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(users)
+}
+
+func welcomeHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "session-name")
+	username, ok := session.Values["username"].(string)
+	if !ok {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	tmpl, err := template.ParseFiles("templates/welcome.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := struct {
+		Username string
+	}{
+		Username: username,
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "session-name")
+	session.Options.MaxAge = -1
+	session.Save(r, w)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
