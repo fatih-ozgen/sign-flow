@@ -84,8 +84,18 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Sign in successful"})
+	// Create a session for the user
+	session, _ := store.Get(r, "session-name")
+	session.Values["user_id"] = user.MembershipID
+	session.Values["username"] = user.Username
+	err = session.Save(r, w)
+	if err != nil {
+		http.Error(w, "Error creating session", http.StatusInternalServerError)
+		return
+	}
+
+	// Redirect to the welcome page
+	http.Redirect(w, r, "/welcome", http.StatusSeeOther)
 }
 
 func getUsersHandler(w http.ResponseWriter, r *http.Request) {
