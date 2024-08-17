@@ -1,6 +1,6 @@
-# User Management API
+# Sign-Up Flow
 
-This is a simple User Management API built with Go and PostgreSQL. It provides basic functionality for user signup, signin, and retrieval of all users.
+This is a simple sing-up flow built with Go and PostgreSQL. It provides basic functionality for user signup, signin, and retrieval of all users.
 
 ## Features
 
